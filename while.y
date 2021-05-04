@@ -10,7 +10,7 @@
     void updateSymbolVal(char symbol,int val);
     int encodeExpInfo(int val, int expType);
     int getExpType(int val);
-    int infWhileLoop();
+    void infWhileLoop(int limit,int cond,int varVal,int incDec);
 
     struct whileInfo{
         int limit;
@@ -50,7 +50,7 @@ line:   assignment          {;}
         |line whileLoop     {;}
         ;
 
-whileLoop: WHILE  '(' condition ')' '{' assignment '}'           {printf("while loop condition var:%d",$6);}
+whileLoop: WHILE  '(' condition ')' '{' assignment '}'           {infWhileLoop($3.limit,$3.gtLt,$3.varVal,$6);}
          ;
 
 
@@ -106,6 +106,13 @@ int encodeExpInfo(int val, int expType){
 
 int getExpType(int val){
     return val%10;
+}
+
+void infWhileLoop(int limit,int cond,int varVal,int incDec){
+    if(((varVal>limit)&&(cond==1)&&(incDec==1))||((varVal<limit)&&(cond==0)&&(incDec==0)))
+        printf("This is an infinite while loop\n");   
+    else
+        printf("This is NOT an infinite while loop\n");
 }
 
 int main(void){
