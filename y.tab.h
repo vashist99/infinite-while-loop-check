@@ -74,9 +74,16 @@ int num; char id; struct conditionInfo{
         int varVal;
         int gtLt;
         int limit;
+        char varName;
     } C;
+    
+    struct assignmentInfo{
+        int type;
+        char varName;
+    } A;
+    
 
-#line 80 "y.tab.h"
+#line 87 "y.tab.h"
 
 };
 typedef union YYSTYPE YYSTYPE;

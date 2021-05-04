@@ -79,7 +79,7 @@
     void updateSymbolVal(char symbol,int val);
     int encodeExpInfo(int val, int expType);
     int getExpType(int val);
-    void infWhileLoop(int limit,int cond,int varVal,int incDec);
+    void infWhileLoop(int limit,int cond,int varVal,int incDec,char CondVarName,char incVarName);
 
     struct whileInfo{
         int limit;
@@ -161,9 +161,16 @@ int num; char id; struct conditionInfo{
         int varVal;
         int gtLt;
         int limit;
+        char varName;
     } C;
+    
+    struct assignmentInfo{
+        int type;
+        char varName;
+    } A;
+    
 
-#line 167 "y.tab.c"
+#line 174 "y.tab.c"
 
 };
 typedef union YYSTYPE YYSTYPE;
@@ -539,8 +546,8 @@ static const yytype_int8 yytranslate[] =
   /* YYRLINE[YYN] -- Source line where rule number YYN was defined.  */
 static const yytype_int8 yyrline[] =
 {
-       0,    44,    44,    45,    46,    47,    48,    49,    50,    53,
-      57,    60,    61,    62,    65,    66,    69,    70,    74,    75
+       0,    51,    51,    52,    53,    54,    55,    56,    57,    60,
+      64,    67,    68,    69,    72,    73,    76,    77,    81,    82
 };
 #endif
 
@@ -1345,115 +1352,115 @@ yyreduce:
   switch (yyn)
     {
   case 2:
-#line 44 "while.y"
+#line 51 "while.y"
                             {;}
-#line 1351 "y.tab.c"
+#line 1358 "y.tab.c"
     break;
 
   case 3:
-#line 45 "while.y"
+#line 52 "while.y"
                             {;}
-#line 1357 "y.tab.c"
+#line 1364 "y.tab.c"
     break;
 
   case 4:
-#line 46 "while.y"
+#line 53 "while.y"
                             {exit(EXIT_SUCCESS);}
-#line 1363 "y.tab.c"
+#line 1370 "y.tab.c"
     break;
 
   case 5:
-#line 47 "while.y"
+#line 54 "while.y"
                             {exit(EXIT_SUCCESS);}
-#line 1369 "y.tab.c"
+#line 1376 "y.tab.c"
     break;
 
   case 6:
-#line 48 "while.y"
+#line 55 "while.y"
                             {;}
-#line 1375 "y.tab.c"
+#line 1382 "y.tab.c"
     break;
 
   case 7:
-#line 49 "while.y"
+#line 56 "while.y"
                             {;}
-#line 1381 "y.tab.c"
+#line 1388 "y.tab.c"
     break;
 
   case 8:
-#line 50 "while.y"
+#line 57 "while.y"
                             {;}
-#line 1387 "y.tab.c"
+#line 1394 "y.tab.c"
     break;
 
   case 9:
-#line 53 "while.y"
-                                                                 {infWhileLoop((yyvsp[-4].C).limit,(yyvsp[-4].C).gtLt,(yyvsp[-4].C).varVal,(yyvsp[-1].num));}
-#line 1393 "y.tab.c"
+#line 60 "while.y"
+                                                                 {infWhileLoop((yyvsp[-4].C).limit,(yyvsp[-4].C).gtLt,(yyvsp[-4].C).varVal,(yyvsp[-1].A).type,(yyvsp[-4].C).varName,(yyvsp[-1].A).varName);}
+#line 1400 "y.tab.c"
     break;
 
   case 10:
-#line 57 "while.y"
-                                 {updateSymbolVal((yyvsp[-2].id),(yyvsp[0].num));(yyval.num) = getExpType((yyvsp[0].num));}
-#line 1399 "y.tab.c"
+#line 64 "while.y"
+                                 {updateSymbolVal((yyvsp[-2].id),(yyvsp[0].num));(yyval.A).type = getExpType((yyvsp[0].num));(yyval.A).varName = (yyvsp[-2].id);}
+#line 1406 "y.tab.c"
     break;
 
   case 11:
-#line 60 "while.y"
+#line 67 "while.y"
                                     {(yyval.num) = (yyvsp[0].num);}
-#line 1405 "y.tab.c"
+#line 1412 "y.tab.c"
     break;
 
   case 12:
-#line 61 "while.y"
+#line 68 "while.y"
                                     {temp = (yyvsp[-2].num) + (yyvsp[0].num); (yyval.num) = encodeExpInfo(temp,1);}
-#line 1411 "y.tab.c"
+#line 1418 "y.tab.c"
     break;
 
   case 13:
-#line 62 "while.y"
+#line 69 "while.y"
                                     {temp = (yyvsp[-2].num) - (yyvsp[0].num); (yyval.num) = encodeExpInfo(temp,0);}
-#line 1417 "y.tab.c"
+#line 1424 "y.tab.c"
     break;
 
   case 14:
-#line 65 "while.y"
+#line 72 "while.y"
                                     {(yyval.num) = (yyvsp[0].num);}
-#line 1423 "y.tab.c"
+#line 1430 "y.tab.c"
     break;
 
   case 15:
-#line 66 "while.y"
+#line 73 "while.y"
                                     {(yyval.num) = symbolVal((yyvsp[0].id));}
-#line 1429 "y.tab.c"
+#line 1436 "y.tab.c"
     break;
 
   case 16:
-#line 69 "while.y"
-                                                {(yyval.C).varVal = symbolVal((yyvsp[-2].id)); (yyval.C).limit = (yyvsp[0].id); (yyval.C).gtLt = (yyvsp[-1].num);}
-#line 1435 "y.tab.c"
+#line 76 "while.y"
+                                                {(yyval.C).varVal = symbolVal((yyvsp[-2].id)); (yyval.C).limit = (yyvsp[0].id); (yyval.C).gtLt = (yyvsp[-1].num);(yyval.C).varName = (yyvsp[-2].id);}
+#line 1442 "y.tab.c"
     break;
 
   case 17:
-#line 70 "while.y"
-                                                {(yyval.C).varVal = symbolVal((yyvsp[-2].id)); (yyval.C).limit = (yyvsp[0].num); (yyval.C).gtLt = (yyvsp[-1].num);}
-#line 1441 "y.tab.c"
+#line 77 "while.y"
+                                                {(yyval.C).varVal = symbolVal((yyvsp[-2].id)); (yyval.C).limit = (yyvsp[0].num); (yyval.C).gtLt = (yyvsp[-1].num);(yyval.C).varName = (yyvsp[-2].id);}
+#line 1448 "y.tab.c"
     break;
 
   case 18:
-#line 74 "while.y"
+#line 81 "while.y"
                       {(yyval.num) = 1;}
-#line 1447 "y.tab.c"
+#line 1454 "y.tab.c"
     break;
 
   case 19:
-#line 75 "while.y"
+#line 82 "while.y"
                       {(yyval.num) = 0;}
-#line 1453 "y.tab.c"
+#line 1460 "y.tab.c"
     break;
 
 
-#line 1457 "y.tab.c"
+#line 1464 "y.tab.c"
 
       default: break;
     }
@@ -1685,7 +1692,7 @@ yyreturn:
 #endif
   return yyresult;
 }
-#line 78 "while.y"
+#line 85 "while.y"
 
 
 int computeSymbolIndex(char token){
@@ -1719,8 +1726,8 @@ int getExpType(int val){
     return val%10;
 }
 
-void infWhileLoop(int limit,int cond,int varVal,int incDec){
-    if(((varVal>limit)&&(cond==1)&&(incDec==1))||((varVal<limit)&&(cond==0)&&(incDec==0)))
+void infWhileLoop(int limit,int cond,int varVal,int incDec,char CondVarName,char incVarName){
+    if(((varVal>limit)&&(cond==1)&&(incDec==1))||((varVal<limit)&&(cond==0)&&(incDec==0))||(CondVarName!=incVarName))
         printf("This is an infinite while loop\n");   
     else
         printf("This is NOT an infinite while loop\n");

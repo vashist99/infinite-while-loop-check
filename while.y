@@ -10,7 +10,7 @@
     void updateSymbolVal(char symbol,int val);
     int encodeExpInfo(int val, int expType);
     int getExpType(int val);
-    void infWhileLoop(int limit,int cond,int varVal,int incDec);
+    void infWhileLoop(int limit,int cond,int varVal,int incDec,char CondVarName,char incVarName);
 
     struct whileInfo{
         int limit;
@@ -25,7 +25,14 @@
         int varVal;
         int gtLt;
         int limit;
-    } C;}
+        char varName;
+    } C;
+    
+    struct assignmentInfo{
+        int type;
+        char varName;
+    } A;
+    }
 %start line
 %token WHILE
 %token lt
@@ -34,7 +41,7 @@
 %token <num> number
 %token <id> identifier
 %type <num> line exp term
-%type <num> assignment
+%type <A> assignment
 %type <C> condition
 %type <num> cond_op
 
@@ -50,11 +57,11 @@ line:   assignment          {;}
         |line whileLoop     {;}
         ;
 
-whileLoop: WHILE  '(' condition ')' '{' assignment '}'           {infWhileLoop($3.limit,$3.gtLt,$3.varVal,$6);}
+whileLoop: WHILE  '(' condition ')' '{' assignment '}'           {infWhileLoop($3.limit,$3.gtLt,$3.varVal,$6.type,$3.varName,$6.varName);}
          ;
 
 
-assignment  : identifier '=' exp {updateSymbolVal($1,$3);$$ = getExpType($3);}
+assignment  : identifier '=' exp {updateSymbolVal($1,$3);$$.type = getExpType($3);$$.varName = $1;}
             ;
 
 exp         :   term                {$$ = $1;}
@@ -66,8 +73,8 @@ term        :   number              {$$ = $1;}
             |   identifier          {$$ = symbolVal($1);}
             ;
 
-condition  :  identifier cond_op identifier     {$$.varVal = symbolVal($1); $$.limit = $3; $$.gtLt = $2;}
-              |identifier cond_op number        {$$.varVal = symbolVal($1); $$.limit = $3; $$.gtLt = $2;}
+condition  :  identifier cond_op identifier     {$$.varVal = symbolVal($1); $$.limit = $3; $$.gtLt = $2;$$.varName = $1;}
+              |identifier cond_op number        {$$.varVal = symbolVal($1); $$.limit = $3; $$.gtLt = $2;$$.varName = $1;}
               ;
 
 
@@ -108,8 +115,8 @@ int getExpType(int val){
     return val%10;
 }
 
-void infWhileLoop(int limit,int cond,int varVal,int incDec){
-    if(((varVal>limit)&&(cond==1)&&(incDec==1))||((varVal<limit)&&(cond==0)&&(incDec==0)))
+void infWhileLoop(int limit,int cond,int varVal,int incDec,char CondVarName,char incVarName){
+    if(((varVal>limit)&&(cond==1)&&(incDec==1))||((varVal<limit)&&(cond==0)&&(incDec==0))||(CondVarName!=incVarName))
         printf("This is an infinite while loop\n");   
     else
         printf("This is NOT an infinite while loop\n");
