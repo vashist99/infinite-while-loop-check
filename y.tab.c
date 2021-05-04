@@ -73,11 +73,22 @@
     #include <stdlib.h>
     #include <ctype.h>
     int symbols[100];
+    int temp;
     int yylex();
     int symbolVal(char symbol);
     void updateSymbolVal(char symbol,int val);
+    int encodeExpInfo(int val, int expType);
+    int getExpType(int val);
+    int infWhileLoop();
 
-#line 81 "y.tab.c"
+    struct whileInfo{
+        int limit;
+        int gtlt;
+        int incdec;
+    };
+    
+
+#line 92 "y.tab.c"
 
 # ifndef YY_CAST
 #  ifdef __cplusplus
@@ -145,10 +156,14 @@ extern int yydebug;
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
 union YYSTYPE
 {
-#line 12 "while.y"
-int num; char id;
+#line 24 "while.y"
+int num; char id; struct conditionInfo{
+        int varVal;
+        int gtLt;
+        int limit;
+    } C;
 
-#line 152 "y.tab.c"
+#line 167 "y.tab.c"
 
 };
 typedef union YYSTYPE YYSTYPE;
@@ -470,7 +485,7 @@ union yyalloc
 #define YYLAST   30
 
 /* YYNTOKENS -- Number of terminals.  */
-#define YYNTOKENS  18
+#define YYNTOKENS  16
 /* YYNNTS -- Number of nonterminals.  */
 #define YYNNTS  8
 /* YYNRULES -- Number of rules.  */
@@ -497,7 +512,7 @@ static const yytype_int8 yytranslate[] =
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
        9,    10,     2,    14,     2,    15,     2,     2,     2,     2,
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
-      17,    13,    16,     2,     2,     2,     2,     2,     2,     2,
+       2,    13,     2,     2,     2,     2,     2,     2,     2,     2,
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
@@ -524,8 +539,8 @@ static const yytype_int8 yytranslate[] =
   /* YYRLINE[YYN] -- Source line where rule number YYN was defined.  */
 static const yytype_int8 yyrline[] =
 {
-       0,    28,    28,    29,    30,    31,    32,    33,    34,    37,
-      41,    44,    45,    46,    49,    50,    53,    54,    58,    59
+       0,    44,    44,    45,    46,    47,    48,    49,    50,    53,
+      57,    60,    61,    62,    65,    66,    69,    70,    74,    75
 };
 #endif
 
@@ -536,8 +551,8 @@ static const char *const yytname[] =
 {
   "$end", "error", "$undefined", "WHILE", "lt", "gt", "exit_command",
   "number", "identifier", "'('", "')'", "'{'", "'}'", "'='", "'+'", "'-'",
-  "'>'", "'<'", "$accept", "line", "whileLoop", "assignment", "exp",
-  "term", "condition", "cond_op", YY_NULLPTR
+  "$accept", "line", "whileLoop", "assignment", "exp", "term", "condition",
+  "cond_op", YY_NULLPTR
 };
 #endif
 
@@ -547,11 +562,11 @@ static const char *const yytname[] =
 static const yytype_int16 yytoknum[] =
 {
        0,   256,   257,   258,   259,   260,   261,   262,   263,    40,
-      41,   123,   125,    61,    43,    45,    62,    60
+      41,   123,   125,    61,    43,    45
 };
 # endif
 
-#define YYPACT_NINF (-9)
+#define YYPACT_NINF (-11)
 
 #define yypact_value_is_default(Yyn) \
   ((Yyn) == YYPACT_NINF)
@@ -565,10 +580,10 @@ static const yytype_int16 yytoknum[] =
      STATE-NUM.  */
 static const yytype_int8 yypact[] =
 {
-       0,    -7,    -9,    -3,     1,    -9,    -9,    -9,     9,     4,
-      -9,    -9,     8,    -9,    -9,    -8,    -9,    -9,     2,    14,
-      -9,    -9,     6,    -9,    -9,    -9,    15,     4,     4,    19,
-      -9,    -9,    16,    -9
+       9,     7,   -11,    -3,     3,   -11,   -11,   -11,    15,   -11,
+     -11,     0,     6,   -11,   -11,    11,   -11,   -11,    14,    12,
+     -11,   -11,   -10,   -11,   -11,   -11,    16,     0,     0,    18,
+     -11,   -11,    17,   -11
 };
 
   /* YYDEFACT[STATE-NUM] -- Default reduction number in state STATE-NUM.
@@ -576,8 +591,8 @@ static const yytype_int8 yypact[] =
      means the default is an error.  */
 static const yytype_int8 yydefact[] =
 {
-       0,     0,     4,     0,     0,     6,     2,     7,     0,     0,
-      18,    19,     0,     1,     5,     0,     8,     3,     0,     0,
+       0,     0,     4,     0,     0,     6,     2,     7,     0,    19,
+      18,     0,     0,     1,     5,     0,     8,     3,     0,     0,
       14,    15,    10,    11,    17,    16,     0,     0,     0,     0,
       12,    13,     0,     9
 };
@@ -585,7 +600,7 @@ static const yytype_int8 yydefact[] =
   /* YYPGOTO[NTERM-NUM].  */
 static const yytype_int8 yypgoto[] =
 {
-      -9,    -9,    25,    -4,    -9,    -5,    22,    -9
+     -11,   -11,    24,    -4,   -11,    -7,    22,   -11
 };
 
   /* YYDEFGOTO[NTERM-NUM].  */
@@ -599,17 +614,17 @@ static const yytype_int8 yydefgoto[] =
      number is the opposite.  If YYTABLE_NINF, syntax error.  */
 static const yytype_int8 yytable[] =
 {
-      17,    13,     8,     1,     1,     9,     2,    14,     3,    15,
-       9,    20,    21,    10,    11,    24,    25,    18,    10,    11,
-      27,    28,    30,    31,    26,    32,    29,    15,    33,    16,
+      17,     9,    10,    13,    27,    28,     1,    20,    21,    14,
+      11,    15,     1,    24,    25,     2,     8,     3,     9,    10,
+      30,    31,    26,    18,    11,    32,    15,    29,    16,    33,
       19
 };
 
 static const yytype_int8 yycheck[] =
 {
-       4,     0,     9,     3,     3,    13,     6,     6,     8,     8,
-      13,     7,     8,    16,    17,     7,     8,     8,    16,    17,
-      14,    15,    27,    28,    10,    29,    11,     8,    12,     4,
+       4,     4,     5,     0,    14,    15,     3,     7,     8,     6,
+      13,     8,     3,     7,     8,     6,     9,     8,     4,     5,
+      27,    28,    10,     8,    13,    29,     8,    11,     4,    12,
        8
 };
 
@@ -617,17 +632,17 @@ static const yytype_int8 yycheck[] =
      symbol of state STATE-NUM.  */
 static const yytype_int8 yystos[] =
 {
-       0,     3,     6,     8,    19,    20,    21,    24,     9,    13,
-      16,    17,    25,     0,     6,     8,    20,    21,     8,    24,
-       7,     8,    22,    23,     7,     8,    10,    14,    15,    11,
-      23,    23,    21,    12
+       0,     3,     6,     8,    17,    18,    19,    22,     9,     4,
+       5,    13,    23,     0,     6,     8,    18,    19,     8,    22,
+       7,     8,    20,    21,     7,     8,    10,    14,    15,    11,
+      21,    21,    19,    12
 };
 
   /* YYR1[YYN] -- Symbol number of symbol that rule YYN derives.  */
 static const yytype_int8 yyr1[] =
 {
-       0,    18,    19,    19,    19,    19,    19,    19,    19,    20,
-      21,    22,    22,    22,    23,    23,    24,    24,    25,    25
+       0,    16,    17,    17,    17,    17,    17,    17,    17,    18,
+      19,    20,    20,    20,    21,    21,    22,    22,    23,    23
 };
 
   /* YYR2[YYN] -- Number of symbols on the right hand side of rule YYN.  */
@@ -1330,103 +1345,115 @@ yyreduce:
   switch (yyn)
     {
   case 2:
-#line 28 "while.y"
+#line 44 "while.y"
                             {;}
-#line 1336 "y.tab.c"
+#line 1351 "y.tab.c"
     break;
 
   case 3:
-#line 29 "while.y"
+#line 45 "while.y"
                             {;}
-#line 1342 "y.tab.c"
+#line 1357 "y.tab.c"
     break;
 
   case 4:
-#line 30 "while.y"
+#line 46 "while.y"
                             {exit(EXIT_SUCCESS);}
-#line 1348 "y.tab.c"
+#line 1363 "y.tab.c"
     break;
 
   case 5:
-#line 31 "while.y"
+#line 47 "while.y"
                             {exit(EXIT_SUCCESS);}
-#line 1354 "y.tab.c"
+#line 1369 "y.tab.c"
     break;
 
   case 6:
-#line 32 "while.y"
+#line 48 "while.y"
                             {;}
-#line 1360 "y.tab.c"
+#line 1375 "y.tab.c"
     break;
 
   case 7:
-#line 33 "while.y"
+#line 49 "while.y"
                             {;}
-#line 1366 "y.tab.c"
+#line 1381 "y.tab.c"
     break;
 
   case 8:
-#line 34 "while.y"
-                        {;}
-#line 1372 "y.tab.c"
+#line 50 "while.y"
+                            {;}
+#line 1387 "y.tab.c"
     break;
 
   case 9:
-#line 37 "while.y"
-                                                                 {printf("while loop condition var:%d\n",(yyvsp[-4].num));}
-#line 1378 "y.tab.c"
+#line 53 "while.y"
+                                                                 {printf("while loop condition var:%d",(yyvsp[-1].num));}
+#line 1393 "y.tab.c"
     break;
 
   case 10:
-#line 41 "while.y"
-                                 {updateSymbolVal((yyvsp[-2].id),(yyvsp[0].num));}
-#line 1384 "y.tab.c"
+#line 57 "while.y"
+                                 {updateSymbolVal((yyvsp[-2].id),(yyvsp[0].num));(yyval.num) = getExpType((yyvsp[0].num));}
+#line 1399 "y.tab.c"
     break;
 
   case 11:
-#line 44 "while.y"
+#line 60 "while.y"
                                     {(yyval.num) = (yyvsp[0].num);}
-#line 1390 "y.tab.c"
+#line 1405 "y.tab.c"
     break;
 
   case 12:
-#line 45 "while.y"
-                                    {(yyval.num) = (yyvsp[-2].num) + (yyvsp[0].num);}
-#line 1396 "y.tab.c"
+#line 61 "while.y"
+                                    {temp = (yyvsp[-2].num) + (yyvsp[0].num); (yyval.num) = encodeExpInfo(temp,1);}
+#line 1411 "y.tab.c"
     break;
 
   case 13:
-#line 46 "while.y"
-                                    {(yyval.num) = (yyvsp[-2].num) - (yyvsp[0].num);}
-#line 1402 "y.tab.c"
+#line 62 "while.y"
+                                    {temp = (yyvsp[-2].num) - (yyvsp[0].num); (yyval.num) = encodeExpInfo(temp,0);}
+#line 1417 "y.tab.c"
     break;
 
   case 14:
-#line 49 "while.y"
+#line 65 "while.y"
                                     {(yyval.num) = (yyvsp[0].num);}
-#line 1408 "y.tab.c"
+#line 1423 "y.tab.c"
     break;
 
   case 15:
-#line 50 "while.y"
+#line 66 "while.y"
                                     {(yyval.num) = symbolVal((yyvsp[0].id));}
-#line 1414 "y.tab.c"
+#line 1429 "y.tab.c"
     break;
 
   case 16:
-#line 53 "while.y"
-                                                {(yyval.num) = symbolVal((yyvsp[-2].id));}
-#line 1420 "y.tab.c"
+#line 69 "while.y"
+                                                {(yyval.C).varVal = symbolVal((yyvsp[-2].id)); (yyval.C).limit = (yyvsp[0].id); (yyval.C).gtLt = (yyvsp[-1].num);}
+#line 1435 "y.tab.c"
     break;
 
   case 17:
-#line 54 "while.y"
-                                                {(yyval.num) = symbolVal((yyvsp[-2].id));}
-#line 1426 "y.tab.c"
+#line 70 "while.y"
+                                                {(yyval.C).varVal = symbolVal((yyvsp[-2].id)); (yyval.C).limit = (yyvsp[0].num); (yyval.C).gtLt = (yyvsp[-1].num);}
+#line 1441 "y.tab.c"
+    break;
+
+  case 18:
+#line 74 "while.y"
+                      {(yyval.num) = 1;}
+#line 1447 "y.tab.c"
+    break;
+
+  case 19:
+#line 75 "while.y"
+                      {(yyval.num) = 0;}
+#line 1453 "y.tab.c"
     break;
 
 
-#line 1430 "y.tab.c"
+#line 1457 "y.tab.c"
 
       default: break;
     }
@@ -1658,7 +1685,7 @@ yyreturn:
 #endif
   return yyresult;
 }
-#line 62 "while.y"
+#line 78 "while.y"
 
 
 int computeSymbolIndex(char token){
@@ -1680,6 +1707,16 @@ int symbolVal(char symbol){
 void updateSymbolVal(char symbol, int val){
     int bucket = computeSymbolIndex(symbol);
     symbols[bucket] = val;
+}
+
+
+
+int encodeExpInfo(int val, int expType){
+    return val*10+expType;
+}
+
+int getExpType(int val){
+    return val%10;
 }
 
 int main(void){

@@ -69,10 +69,14 @@ extern int yydebug;
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
 union YYSTYPE
 {
-#line 12 "while.y"
-int num; char id;
+#line 24 "while.y"
+int num; char id; struct conditionInfo{
+        int varVal;
+        int gtLt;
+        int limit;
+    } C;
 
-#line 76 "y.tab.h"
+#line 80 "y.tab.h"
 
 };
 typedef union YYSTYPE YYSTYPE;

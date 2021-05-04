@@ -5,7 +5,9 @@
 %%
 
 "while"         {return WHILE;}
-"exit"          {printf("over!"); return exit_command;}
+"exit"          {return exit_command;}
+\>              {return gt;}
+\<              {return lt;}
 [a-zA-Z]        {yylval.id = yytext[0]; return identifier;}
 [0-9]+          {yylval.num = atoi(yytext); return number;}
 [ \t\n]         ;

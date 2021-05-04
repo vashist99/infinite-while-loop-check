@@ -4,12 +4,28 @@
     #include <stdlib.h>
     #include <ctype.h>
     int symbols[100];
+    int temp;
     int yylex();
     int symbolVal(char symbol);
     void updateSymbolVal(char symbol,int val);
+    int encodeExpInfo(int val, int expType);
+    int getExpType(int val);
+    int infWhileLoop();
+
+    struct whileInfo{
+        int limit;
+        int gtlt;
+        int incdec;
+    };
+    
 %}
 
-%union {int num; char id;}
+
+%union {int num; char id; struct conditionInfo{
+        int varVal;
+        int gtLt;
+        int limit;
+    } C;}
 %start line
 %token WHILE
 %token lt
@@ -18,9 +34,9 @@
 %token <num> number
 %token <id> identifier
 %type <num> line exp term
-%type <id> assignment
-%type <num> condition
-
+%type <num> assignment
+%type <C> condition
+%type <num> cond_op
 
 %%
 
@@ -31,32 +47,32 @@ line:   assignment          {;}
         |line exit_command  {exit(EXIT_SUCCESS);}
         |whileLoop          {;}
         |condition          {;}
-        |line whileLoop {;}
+        |line whileLoop     {;}
         ;
 
-whileLoop: WHILE  '(' condition ')' '{' assignment '}'           {printf("while loop condition var:%d\n",$3);}
+whileLoop: WHILE  '(' condition ')' '{' assignment '}'           {printf("while loop condition var:%d",$6);}
          ;
 
 
-assignment  : identifier '=' exp {updateSymbolVal($1,$3);}
+assignment  : identifier '=' exp {updateSymbolVal($1,$3);$$ = getExpType($3);}
             ;
 
 exp         :   term                {$$ = $1;}
-            |   exp '+' term        {$$ = $1 + $3;}
-            |   exp '-' term        {$$ = $1 - $3;}
+            |   exp '+' term        {temp = $1 + $3; $$ = encodeExpInfo(temp,1);}
+            |   exp '-' term        {temp = $1 - $3; $$ = encodeExpInfo(temp,0);}
             ;
 
 term        :   number              {$$ = $1;}
             |   identifier          {$$ = symbolVal($1);}
             ;
 
-condition  :  identifier cond_op identifier     {$$ = symbolVal($1);}
-              |identifier cond_op number        {$$ = symbolVal($1);}
+condition  :  identifier cond_op identifier     {$$.varVal = symbolVal($1); $$.limit = $3; $$.gtLt = $2;}
+              |identifier cond_op number        {$$.varVal = symbolVal($1); $$.limit = $3; $$.gtLt = $2;}
               ;
 
 
-cond_op   :  '>'
-            | '<'
+cond_op   :  gt       {$$ = 1;}
+            | lt      {$$ = 0;}  
             ;
 
 %%
@@ -80,6 +96,16 @@ int symbolVal(char symbol){
 void updateSymbolVal(char symbol, int val){
     int bucket = computeSymbolIndex(symbol);
     symbols[bucket] = val;
+}
+
+
+
+int encodeExpInfo(int val, int expType){
+    return val*10+expType;
+}
+
+int getExpType(int val){
+    return val%10;
 }
 
 int main(void){
